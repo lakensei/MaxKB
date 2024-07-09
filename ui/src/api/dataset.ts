@@ -163,6 +163,14 @@ const getDatasetHitTest: (
   return get(`${prefix}/${dataset_id}/hit_test`, data, loading)
 }
 
+const getDatasetDocumentSearch: (
+  dataset_id: string,
+  data: any,
+  loading?: Ref<boolean>
+) => Promise<Result<Array<any>>> = (dataset_id, data, loading) => {
+  return get(`${prefix}/${dataset_id}/document_search`, data, loading)
+}
+
 /**
  * 同步知识库
  * @param 参数 dataset_id
@@ -209,7 +217,7 @@ export default {
   getDatasetDetail,
   putDataset,
   listUsableApplication,
-  getDatasetHitTest,
+  getDatasetHitTest, getDatasetDocumentSearch,
   postWebDataset,
   putSyncWebDataset,
   putReEmbeddingDataset,

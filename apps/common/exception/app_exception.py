@@ -73,3 +73,10 @@ class AppChatNumOutOfBoundsFailed(AppApiException):
     def __init__(self, code, message):
         self.code = code
         self.message = message
+
+
+class AppModelException(AppApiException):
+    """
+    模型调用失败异常
+    """
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR

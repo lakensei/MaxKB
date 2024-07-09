@@ -6,6 +6,7 @@
     @date：2023/9/22 13:43
     @desc:
 """
+import json
 import logging
 import os
 import re
@@ -39,10 +40,13 @@ from common.util.common import post, flat_map
 from common.util.field_message import ErrMessage
 from common.util.file_util import get_file_content
 from common.util.fork import Fork
+from common.util.rsa_util import rsa_long_decrypt
 from common.util.split_model import get_split_model
 from dataset.models.data_set import DataSet, Document, Paragraph, Problem, Type, Status, ProblemParagraphMapping, Image
 from dataset.serializers.common_serializers import BatchSerializer, MetaSerializer, ProblemParagraphManage
 from dataset.serializers.paragraph_serializers import ParagraphSerializers, ParagraphInstanceSerializer
+from setting.models import Model, Status as ModelStatus
+from setting.models_provider.constants.model_provider_constants import ModelProvideConstants
 from smartdoc.conf import PROJECT_DIR
 
 parse_qa_handle_list = [XlsParseQAHandle(), CsvParseQAHandle(), XlsxParseQAHandle()]
@@ -743,6 +747,12 @@ class DocumentSerializers(ApiMixin, serializers.Serializer):
         with_filter = serializers.BooleanField(required=False, error_messages=ErrMessage.boolean(
             "自动清洗"))
 
+        vlm_model_id = serializers.CharField(required=False, error_messages=ErrMessage.char(
+            "vlm模型"))
+
+        rule_type = serializers.CharField(required=False, error_messages=ErrMessage.char(
+            "分段规则"))
+
         def is_valid(self, *, raise_exception=True):
             super().is_valid(raise_exception=True)
             files = self.data.get('file')
@@ -772,13 +782,38 @@ class DocumentSerializers(ApiMixin, serializers.Serializer):
                                   in_=openapi.IN_FORM,
                                   required=False,
                                   type=openapi.TYPE_BOOLEAN, title="是否清除特殊字符", description="是否清除特殊字符"),
+                openapi.Parameter(name='vlm_model_id',
+                                  in_=openapi.IN_FORM,
+                                  required=False,
+                                  type=openapi.TYPE_STRING, title="vlm模型", description="vlm模型用于生成图片描述和图片问答"),
+                openapi.Parameter(name='rule_type',
+                                  in_=openapi.IN_FORM,
+                                  required=False,
+                                  type=openapi.TYPE_STRING, title="分段规则", description="分段规则"),
             ]
 
         def parse(self):
             file_list = self.data.get("file")
+            rule_type = self.data.get("rule_type", "1")
+            model_id = self.data.get("vlm_model_id", None)
+            vlm_model = None
+            if model_id:
+
+                model = QuerySet(Model).filter(id=model_id).first()
+                if model.status == ModelStatus.ERROR:
+                    raise AppApiException(500, "当前模型不可用")
+                vlm_model = ModelProvideConstants[model.provider].value.get_model(model.model_type, model.model_name,
+                                                                                  json.loads(
+                                                                                      rsa_long_decrypt(
+                                                                                          model.credential)),
+                                                                                  streaming=True)
+            # with open(r'D:/project/mine/network/MaxKB/4.json', 'r') as f:
+            #     data = json.loads(f.read())
+            # return data["data"]
             return list(
                 map(lambda f: file_to_paragraph(f, self.data.get("patterns", None), self.data.get("with_filter", None),
-                                                self.data.get("limit", None)), file_list))
+                                                self.data.get("limit", None), vlm_model, rule_type),
+                    file_list))
 
     class SplitPattern(ApiMixin, serializers.Serializer):
         @staticmethod
@@ -910,9 +945,11 @@ def save_image(image_list):
     QuerySet(Image).bulk_create(image_list)
 
 
-def file_to_paragraph(file, pattern_list: List, with_filter: bool, limit: int):
+def file_to_paragraph(file, pattern_list: List, with_filter: bool, limit: int, vlm_model, rule_type):
     get_buffer = FileBufferHandle().get_buffer
     for split_handle in split_handles:
         if split_handle.support(file, get_buffer):
+            if isinstance(split_handle, PdfSplitHandle):
+                return split_handle.handle(file, pattern_list, with_filter, limit, get_buffer, save_image, vlm_model, rule_type)
             return split_handle.handle(file, pattern_list, with_filter, limit, get_buffer, save_image)
     return default_split_handle.handle(file, pattern_list, with_filter, limit, get_buffer, save_image)

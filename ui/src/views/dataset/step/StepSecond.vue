@@ -78,6 +78,142 @@
                     </div>
                   </el-card>
                 </el-card>
+                <el-card shadow="never" class="mb-16" :class="radio === '3' ? 'active' : ''">
+                  <el-radio value="3" size="large">
+                    <p class="mb-4">OCR版面分析分段</p>
+                    <el-text type="info"
+                      >通过版面分析对文本进行分段，并对图片/表格生成描述替换文本
+                    </el-text>
+                  </el-radio>
+                  <el-card
+                    v-if="radio === '3'"
+                    shadow="never"
+                    class="card-never mt-16"
+                    style="margin-left: 30px"
+                  >
+                    <div class="set-rules__form">
+                      <div class="form-item mb-16">
+                        <div class="title flex align-center mb-8">
+                          <span style="margin-right: 4px">多模态大模型</span>
+                          <el-tooltip
+                            effect="dark"
+                            content="通过大模型获取图片/表格的文本内容"
+                            placement="right"
+                          >
+                            <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
+                          </el-tooltip>
+                        </div>
+                        <div @click.stop>
+                          <el-select
+                            v-model="form.vlm_model_id"
+                            filterable
+                            placeholder="请选择"
+                          >
+                            <el-option
+                              v-for="(item, index) in vlmModelList"
+                              :key="index"
+                              :label="item.key"
+                              :value="item.value"
+                            >
+                            </el-option>
+                          </el-select>
+                        </div>
+                      </div>
+<!--                      <div class="form-item mb-16">-->
+<!--                        <div class="title flex align-center mb-8">-->
+<!--                          <span style="margin-right: 4px">分段标识</span>-->
+<!--                          <el-tooltip-->
+<!--                            effect="dark"-->
+<!--                            content="按照所选符号先后顺序做递归分割，分割结果超出分段长度将截取至分段长度。"-->
+<!--                            placement="right"-->
+<!--                          >-->
+<!--                            <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>-->
+<!--                          </el-tooltip>-->
+<!--                        </div>-->
+<!--                        <div @click.stop>-->
+<!--                          <el-select-->
+<!--                            v-model="form.patterns"-->
+<!--                            multiple-->
+<!--                            allow-create-->
+<!--                            default-first-option-->
+<!--                            filterable-->
+<!--                            placeholder="请选择"-->
+<!--                          >-->
+<!--                            <el-option-->
+<!--                              v-for="(item, index) in splitPatternList"-->
+<!--                              :key="index"-->
+<!--                              :label="item.key"-->
+<!--                              :value="item.value"-->
+<!--                            >-->
+<!--                            </el-option>-->
+<!--                          </el-select>-->
+<!--                        </div>-->
+<!--                      </div>-->
+<!--                      <div class="form-item mb-16">-->
+<!--                        <div class="title mb-8">分段长度</div>-->
+<!--                        <el-slider-->
+<!--                          v-model="form.limit"-->
+<!--                          show-input-->
+<!--                          :show-input-controls="false"-->
+<!--                          :min="50"-->
+<!--                          :max="4096"-->
+<!--                        />-->
+<!--                      </div>-->
+<!--                      <div class="form-item mb-16">-->
+<!--                        <div class="title mb-8">自动清洗</div>-->
+<!--                        <el-switch size="small" v-model="form.with_filter" />-->
+<!--                        <div style="margin-top: 4px">-->
+<!--                          <el-text type="info">去掉重复多余符号空格、空行、制表符</el-text>-->
+<!--                        </div>-->
+<!--                      </div>-->
+                    </div>
+                  </el-card>
+                </el-card>
+                <el-card shadow="never" class="mb-16" :class="radio === '4' ? 'active' : ''">
+                  <el-radio value="4" size="large">
+                    <p class="mb-4">多模态大模型分段</p>
+                    <el-text type="info"
+                      >将每个pdf视为图片进行推理，得到文本分段
+                    </el-text>
+                  </el-radio>
+                  <el-card
+                    v-if="radio === '4'"
+                    shadow="never"
+                    class="card-never mt-16"
+                    style="margin-left: 30px"
+                  >
+                    <div class="set-rules__form">
+                      <div class="form-item mb-16">
+                        <div class="title flex align-center mb-8">
+                          <span style="margin-right: 4px">多模态大模型</span>
+                          <el-tooltip
+                            effect="dark"
+                            content="对图片/表格进行推理"
+                            placement="right"
+                          >
+                            <AppIcon iconName="app-warning" class="app-warning-icon"></AppIcon>
+                          </el-tooltip>
+                        </div>
+                        <div @click.stop>
+                          <el-select
+                            v-model="form.vlm_model_id"
+                            default-first-option
+                            filterable
+                            placeholder="请选择"
+                          >
+                            <el-option
+                              v-for="(item, index) in vlmModelList"
+                              :key="index"
+                              :label="item.key"
+                              :value="item.value"
+                            >
+                            </el-option>
+                          </el-select>
+                        </div>
+                      </div>
+                    </div>
+                  </el-card>
+                </el-card>
               </el-radio-group>
             </div>
           </el-scrollbar>
@@ -106,29 +242,36 @@
 import { ref, computed, onMounted, reactive, watch } from 'vue'
 import ParagraphPreview from '@/views/dataset/component/ParagraphPreview.vue'
 import documentApi from '@/api/document'
+import ModelApi from '@/api/model'
 import useStore from '@/stores'
 import type { KeyValue } from '@/api/type/common'
-const { dataset } = useStore()
+const { model, dataset } = useStore()
 const documentsFiles = computed(() => dataset.documentsFiles)
 const splitPatternList = ref<Array<KeyValue<string, string>>>([])
+const vlmModelList = ref<Array<KeyValue<string, string>>>([])
 
 const radio = ref('1')
 const loading = ref(false)
 const paragraphList = ref<any[]>([])
 const patternLoading = ref<boolean>(false)
+const vlmModelLoading = ref<boolean>(false)
 const checkedConnect = ref<boolean>(false)
 
 const firstChecked = ref(true)
 
 const form = reactive<{
   patterns: Array<string>
+  // rule_type: string
+  vlm_model_id: string
   limit: number
   with_filter: boolean
   [propName: string]: any
 }>({
+  // rule_type: '1',
   patterns: [],
   limit: 500,
-  with_filter: true
+  with_filter: true,
+  vlm_model_id: ''
 })
 
 function changeHandle(val: boolean) {
@@ -152,6 +295,7 @@ function changeHandle(val: boolean) {
 function splitDocument() {
   loading.value = true
   let fd = new FormData()
+  fd.append('rule_type', radio.value)
   documentsFiles.value.forEach((item) => {
     if (item?.raw) {
       fd.append('file', item?.raw)
@@ -162,6 +306,13 @@ function splitDocument() {
       if (key == 'patterns') {
         form.patterns.forEach((item) => fd.append('patterns', item))
       } else {
+        fd.append(key, form[key])
+      }
+    })
+  }
+  if (radio.value === '3' || radio.value === '4') {
+    Object.keys(form).forEach((key) => {
+       if (key != 'patterns') {
         fd.append(key, form[key])
       }
     })
@@ -197,9 +348,33 @@ const initSplitPatternList = () => {
   })
 }
 
+const initVlmModelList = () => {
+  ModelApi.getModel({model_type: 'MLLM'}, vlmModelLoading).then((ok) => {
+    vlmModelList.value = ok.data.map(item => ({
+      key: item.name,
+      value: item.id
+    }));
+  })
+  /*
+  vlmModelLoading.value = true
+  model
+  .asyncGetModel()
+  .then((res: any) => {
+    vlmModelList.value = res?.data
+    vlmModelLoading.value = false
+  })
+  .catch(() => {
+    vlmModelLoading.value = false
+  })
+  */
+}
+
 watch(radio, () => {
   if (radio.value === '2') {
     initSplitPatternList()
+  }
+  if (radio.value === '3' || radio.value === '4') {
+    initVlmModelList()
   }
 })
 

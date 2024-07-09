@@ -180,7 +180,8 @@ const getChatOpen: (application_id: String) => Promise<Result<any>> = (applicati
  * data
  */
 const postChatMessage: (chat_id: string, data: any) => Promise<any> = (chat_id, data) => {
-  return postStream(`/api${prefix}/chat_message/${chat_id}`, data)
+  // return postStream(`/api${prefix}/chat_message/${chat_id}`, data)
+  return postStream(`${prefix}/chat_message/${chat_id}`, data)
 }
 
 /**

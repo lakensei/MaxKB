@@ -7,9 +7,9 @@ import useStore from '@/stores'
 import router from '@/router'
 
 import { ref, type WritableComputedRef } from 'vue'
-
+const baseUrl = './api'
 const axiosConfig = {
-  baseURL: '/api',
+  baseURL: baseUrl,
   withCredentials: false,
   timeout: 60000,
   headers: {}
@@ -199,7 +199,7 @@ export const postStream: (url: string, data?: unknown) => Promise<Result<any> | 
   if (token) {
     headers['AUTHORIZATION'] = `${token}`
   }
-  return fetch(url, {
+  return fetch(`${baseUrl}${url}`, {
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,
     headers: headers

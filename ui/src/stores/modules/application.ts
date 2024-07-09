@@ -5,7 +5,7 @@ import { type Ref } from 'vue'
 const useApplicationStore = defineStore({
   id: 'application',
   state: () => ({
-    location: `${window.location.origin}/ui/chat/`
+    location: `${window.location.origin}${window.location.pathname}#/chat/`
   }),
   actions: {
     async asyncGetAllApplication() {

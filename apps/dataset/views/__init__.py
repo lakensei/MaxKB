@@ -12,3 +12,4 @@ from .paragraph import *
 from .problem import *
 from .image import *
 from .file import *
+from .search import *

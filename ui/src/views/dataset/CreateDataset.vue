@@ -126,13 +126,14 @@ function clearStore() {
 function submit() {
   loading.value = true
   const documents = [] as any
-  StepSecondRef.value?.paragraphList.map((item: any) => {
+  StepSecondRef.value?.paragraphList.map((item: any, index: number) => {
     if (!StepSecondRef.value?.checkedConnect) {
       item.content.map((v: any) => {
         delete v['problem_list']
       })
     }
     documents.push({
+      fileType: documentsType[index],
       name: item.name,
       paragraphs: item.content
     })

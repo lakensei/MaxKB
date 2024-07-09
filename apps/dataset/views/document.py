@@ -320,6 +320,10 @@ class Document(APIView):
                 split_data.__setitem__('limit', request_data.get('limit'))
             if 'with_filter' in request.data:
                 split_data.__setitem__('with_filter', request_data.get('with_filter'))
+            if 'vlm_model_id' in request.data:
+                split_data.__setitem__('vlm_model_id', request_data.get('vlm_model_id'))
+            if 'rule_type' in request.data:
+                split_data.__setitem__('rule_type', request_data.get('rule_type'))
             ds = DocumentSerializers.Split(
                 data=split_data)
             ds.is_valid(raise_exception=True)

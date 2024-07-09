@@ -3,7 +3,7 @@
     <template #header>
       <div style="width: 78%">
         <h3 style="display: inline-block">{{ documentDetail?.name }}</h3>
-        <el-text type="info" v-if="documentDetail?.type === '1'"
+        <el-text type="info"
           >（文档地址：<el-link :href="documentDetail?.meta?.source_url" target="_blank">
             <span class="break-all">{{ documentDetail?.meta?.source_url }} </span></el-link
           >）

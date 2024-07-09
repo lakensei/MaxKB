@@ -15,7 +15,6 @@ from functools import reduce
 from typing import Dict, List
 from urllib.parse import urlparse
 
-import xlwt
 from django.contrib.postgres.fields import ArrayField
 from django.core import validators
 from django.db import transaction, models
@@ -411,8 +410,8 @@ class DataSetSerializers(serializers.ModelSerializer):
 
             # 响应数据
             return {**DataSetSerializers(dataset).data,
-                'document_list': DocumentSerializers.Query(data={'dataset_id': dataset_id}).list(
-                    with_valid=True)}, dataset_id
+                       'document_list': DocumentSerializers.Query(data={'dataset_id': dataset_id}).list(
+                           with_valid=True)}, dataset_id
 
         @staticmethod
         def get_last_url_path(url):
@@ -563,6 +562,49 @@ class DataSetSerializers(serializers.ModelSerializer):
                                        EmbeddingModel.get_embedding_model())
             hit_dict = reduce(lambda x, y: {**x, **y}, [{hit.get('paragraph_id'): hit} for hit in hit_list], {})
             p_list = list_paragraph([h.get('paragraph_id') for h in hit_list])
+            return [{**p, 'similarity': hit_dict.get(p.get('id')).get('similarity'),
+                     'comprehensive_score': hit_dict.get(p.get('id')).get('comprehensive_score')} for p in p_list]
+
+    class HitSearch(ApiMixin, serializers.Serializer):
+        id = serializers.CharField(required=True, error_messages=ErrMessage.char("id"))
+        user_id = serializers.UUIDField(required=False, error_messages=ErrMessage.char("用户id"))
+        query_text = serializers.CharField(required=True, error_messages=ErrMessage.char("查询文本"))
+        top_number = serializers.IntegerField(required=True, max_value=100, min_value=1,
+                                              error_messages=ErrMessage.char("响应Top"))
+        similarity = serializers.FloatField(required=True, max_value=2, min_value=0,
+                                            error_messages=ErrMessage.char("相似度"))
+        search_mode = serializers.CharField(required=True, validators=[
+            validators.RegexValidator(regex=re.compile("^embedding|keywords|blend$"),
+                                      message="类型只支持register|reset_password", code=500)
+        ], error_messages=ErrMessage.char("检索模式"))
+
+        def is_valid(self, *, raise_exception=True):
+            super().is_valid(raise_exception=True)
+            if not QuerySet(DataSet).filter(id=self.data.get("id")).exists():
+                raise AppApiException(300, "id不存在")
+
+        def search(self):
+            self.is_valid()
+            vector = VectorStore.get_embedding_vector()
+            exclude_document_id_list = [str(document.id) for document in
+                                        QuerySet(Document).filter(
+                                            dataset_id=self.data.get('id'),
+                                            is_active=False)]
+            # 向量库检索
+            hit_list = vector.hit_test(self.data.get('query_text'), [self.data.get('id')], exclude_document_id_list,
+                                       self.data.get('top_number'),
+                                       self.data.get('similarity'),
+                                       SearchMode(self.data.get('search_mode')),
+                                       EmbeddingModel.get_embedding_model())
+            hit_dict = reduce(lambda x, y: {**x, **y}, [{hit.get('paragraph_id'): hit} for hit in hit_list], {})
+            paragraph_list = [h.get('paragraph_id') for h in hit_list]
+            if paragraph_list is None or len(paragraph_list) == 0:
+                p_list = []
+            else:
+                p_list = native_search(QuerySet(Paragraph).filter(id__in=paragraph_list), get_file_content(
+                    os.path.join(PROJECT_DIR, "apps", "dataset", 'sql', 'list_paragraph_document_url.sql')),
+                                       with_table_name=True)
+
             return [{**p, 'similarity': hit_dict.get(p.get('id')).get('similarity'),
                      'comprehensive_score': hit_dict.get(p.get('id')).get('comprehensive_score')} for p in p_list]
 

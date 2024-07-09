@@ -10,30 +10,30 @@
       <TopMenu></TopMenu>
     </div>
     <div class="flex-center avatar">
-      <el-tooltip effect="dark" :content="$t('layout.topbar.github')" placement="top">
-        <AppIcon
-          iconName="app-github"
-          class="cursor color-secondary mr-8 ml-8"
-          style="font-size: 20px"
-          @click="toUrl('https://github.com/1Panel-dev/MaxKB')"
-        ></AppIcon>
-      </el-tooltip>
-      <el-tooltip effect="dark" :content="$t('layout.topbar.wiki')" placement="top">
-        <AppIcon
-          iconName="app-reading"
-          class="cursor color-secondary mr-8 ml-8"
-          style="font-size: 20px"
-          @click="toUrl('https://maxkb.cn/docs/')"
-        ></AppIcon>
-      </el-tooltip>
-      <el-tooltip effect="dark" :content="$t('layout.topbar.forum')" placement="top">
-        <AppIcon
-          iconName="app-help"
-          class="cursor color-secondary mr-8 ml-8"
-          style="font-size: 20px"
-          @click="toUrl('https://bbs.fit2cloud.com/c/mk/11')"
-        ></AppIcon>
-      </el-tooltip>
+<!--      <el-tooltip effect="dark" :content="$t('layout.topbar.github')" placement="top">-->
+<!--        <AppIcon-->
+<!--          iconName="app-github"-->
+<!--          class="cursor color-secondary mr-8 ml-8"-->
+<!--          style="font-size: 20px"-->
+<!--          @click="toUrl('https://github.com/1Panel-dev/MaxKB')"-->
+<!--        ></AppIcon>-->
+<!--      </el-tooltip>-->
+<!--      <el-tooltip effect="dark" :content="$t('layout.topbar.wiki')" placement="top">-->
+<!--        <AppIcon-->
+<!--          iconName="app-reading"-->
+<!--          class="cursor color-secondary mr-8 ml-8"-->
+<!--          style="font-size: 20px"-->
+<!--          @click="toUrl('https://github.com/1Panel-dev/MaxKB/wiki')"-->
+<!--        ></AppIcon>-->
+<!--      </el-tooltip>-->
+<!--      <el-tooltip effect="dark" :content="$t('layout.topbar.forum')" placement="top">-->
+<!--        <AppIcon-->
+<!--          iconName="app-help"-->
+<!--          class="cursor color-secondary mr-8 ml-8"-->
+<!--          style="font-size: 20px"-->
+<!--          @click="toUrl('https://bbs.fit2cloud.com/c/mk/11')"-->
+<!--        ></AppIcon>-->
+<!--      </el-tooltip>-->
       <el-dropdown v-if="false" trigger="click" type="primary">
         <template #dropdown>
           <el-dropdown-menu>

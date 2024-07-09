@@ -1,13 +1,13 @@
 import Layout from '@/layout/main-layout/index.vue'
 const datasetRouter = {
   path: '/dataset',
-  name: 'dataset',
+  name: 'Dataset',
   meta: { title: '知识库', permission: 'DATASET:READ' },
   redirect: '/dataset',
   children: [
     {
       path: '/dataset',
-      name: 'dataset',
+      name: 'Dataset',
       component: () => import('@/views/dataset/index.vue')
     },
     {
@@ -30,12 +30,25 @@ const datasetRouter = {
           meta: {
             icon: 'app-document',
             iconActive: 'app-document-active',
-            title: '文档',
+            title: '文档列表',
             active: 'document',
             parentPath: '/dataset/:id',
             parentName: 'DatasetDetail'
           },
           component: () => import('@/views/document/index.vue')
+        },
+        {
+          path: 'document-search',
+          name: 'DocumentSearch',
+          meta: {
+            icon: 'Help',
+            iconActive: 'HelpFilled',
+            title: '文档检索',
+            active: 'document-search',
+            parentPath: '/dataset/:id',
+            parentName: 'DatasetDetail'
+          },
+          component: () => import('@/views/document-search/index.vue')
         },
         {
           path: 'problem',

@@ -19,4 +19,5 @@ def main():
 
 
 if __name__ == '__main__':
+    os.environ['HF_HOME'] = '../model/base'
     main()

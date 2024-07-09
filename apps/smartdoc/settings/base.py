@@ -61,7 +61,7 @@ ROOT_URLCONF = 'smartdoc.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['apps/static/ui'],
+        # 'DIRS': ['apps/static/ui'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -115,7 +115,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ['common.auth.authenticate.AnonymousAuthentication']
 
 }
-STATICFILES_DIRS = [(os.path.join(PROJECT_DIR, 'ui', 'dist'))]
+# STATICFILES_DIRS = [(os.path.join(PROJECT_DIR, 'ui', 'dist'))]
 
 STATIC_ROOT = os.path.join(BASE_DIR.parent, 'static')
 

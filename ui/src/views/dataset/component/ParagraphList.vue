@@ -27,8 +27,15 @@
             </el-button>
           </div>
         </div>
+<!--        <div class="lighter mt-12">-->
+<!--          {{ child.content }}-->
+<!--        </div>-->
         <div class="lighter mt-12">
-          {{ child.content }}
+          <MdPreview
+        editorId="preview-only"
+        :modelValue="child.content"
+        class="maxkb-md"
+      />
         </div>
         <div class="lighter mt-12">
           <el-text type="info"> {{ child.content.length }} 个字符 </el-text>
@@ -48,6 +55,7 @@ import { cloneDeep } from 'lodash'
 import { defineProps, ref, computed } from 'vue'
 import EditParagraphDialog from './EditParagraphDialog.vue'
 import { MsgConfirm } from '@/utils/message'
+import { MdPreview } from 'md-editor-v3'
 const page_size = ref<number>(20)
 const current_page = ref<number>(1)
 const currentCIndex = ref<number>(0)

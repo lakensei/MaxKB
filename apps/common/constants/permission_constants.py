@@ -25,6 +25,8 @@ class Group(Enum):
 
     TEAM = "TEAM"
 
+    TOOL = "TOOL"
+
 
 class Operate(Enum):
     """
@@ -133,6 +135,8 @@ class PermissionConstants(Enum):
     TEAM_DELETE = Permission(group=Group.TEAM, operate=Operate.DELETE, roles=[RoleConstants.ADMIN, RoleConstants.USER])
 
     TEAM_EDIT = Permission(group=Group.TEAM, operate=Operate.EDIT, roles=[RoleConstants.ADMIN, RoleConstants.USER])
+
+    TOOL_READ = Permission(group=Group.TOOL, operate=Operate.READ, roles=[RoleConstants.ADMIN, RoleConstants.USER])
 
 
 def get_permission_list_by_role(role: RoleConstants):

@@ -87,3 +87,13 @@ export function getAttrsArray(array: Array<any>, attr: string) {
 export function getSum(array: Array<any>) {
   return array.reduce((total, item) => total + item, 0)
 }
+
+// 图片转base64
+export function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+    reader.onload = (e) => resolve(e.target.result);
+    reader.onerror = reject;
+  });
+}

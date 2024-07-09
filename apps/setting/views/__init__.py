@@ -6,6 +6,6 @@
     @date：2023/9/25 17:12
     @desc:
 """
-from .Team import *
+from .team import *
 from .model import *
 from .system_setting import *

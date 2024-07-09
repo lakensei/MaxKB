@@ -17,10 +17,11 @@ from common.config.tokenizer_manage_config import TokenizerManage
 class OpenAIChatModel(ChatOpenAI):
     def get_num_tokens_from_messages(self, messages: List[BaseMessage]) -> int:
         try:
-            return super().get_num_tokens_from_messages(messages)
+            num = super().get_num_tokens_from_messages(messages)
         except Exception as e:
             tokenizer = TokenizerManage.get_tokenizer()
-            return sum([len(tokenizer.encode(get_buffer_string([m]))) for m in messages])
+            num = sum([len(tokenizer.encode(get_buffer_string([m]))) for m in messages])
+        return num
 
     def get_num_tokens(self, text: str) -> int:
         try:
