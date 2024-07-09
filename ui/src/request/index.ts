@@ -40,8 +40,10 @@ instance.interceptors.response.use(
   (response: any) => {
     if (response.data) {
       if (response.data.code !== 200 && !(response.data instanceof Blob)) {
-        MsgError(response.data.message)
-        return Promise.reject(response.data)
+        if (!response.config.url.includes('/valid')) {
+          MsgError(response.data.message)
+          return Promise.reject(response.data)
+        }
       }
     }
     return response
@@ -52,9 +54,12 @@ instance.interceptors.response.use(
       console.error(err)
     }
     if (err.response?.status === 404) {
-      if (!err.response.config.url.includes('/application/authentication')) {
-        router.push('/404 ')
-      }
+      // if (!err.response.config.url.includes('/application/authentication')) {
+      //   router.push('/404 ')
+      // }
+      MsgError(
+        err.response.data && err.response.data.message ? err.response.data.message : '404'
+      )
     }
     if (err.response?.status === 401) {
       if (

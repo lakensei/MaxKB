@@ -30,7 +30,7 @@ from common.db.sql_execute import select_list
 from common.event import ListenerManagement, SyncWebDatasetArgs
 from common.exception.app_exception import AppApiException
 from common.mixins.api_mixin import ApiMixin
-from common.util.common import post, flat_map
+from common.util.common import post, flat_map, valid_license
 from common.util.field_message import ErrMessage
 from common.util.file_util import get_file_content
 from common.util.fork import ChildLink, Fork
@@ -367,6 +367,8 @@ class DataSetSerializers(serializers.ModelSerializer):
             dataset_instance = {'name': instance.get('name'), 'desc': instance.get('desc'), 'documents': document_list}
             return self.save(dataset_instance, with_valid=True)
 
+        # @valid_license(model=DataSet, count=50,
+        #                message='社区版最多支持 50 个知识库，如需拥有更多知识库，请联系我们（https://fit2cloud.com/）。')
         @post(post_function=post_embedding_dataset)
         @transaction.atomic
         def save(self, instance: Dict, with_valid=True):
