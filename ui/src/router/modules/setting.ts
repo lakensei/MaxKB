@@ -1,6 +1,6 @@
 import { hasPermission } from '@/utils/permission/index'
-import Layout from '@/layout/main-layout/index.vue'
-import { Role } from '@/utils/permission/type'
+import Layout from '@/layout/layout-template/SystemLayout.vue'
+import { Role, ComplexPermission } from '@/utils/permission/type'
 const settingRouter = {
   path: '/setting',
   name: 'Setting',
@@ -74,7 +74,7 @@ const settingRouter = {
             activeMenu: '/setting',
             parentPath: '/setting',
             parentName: 'Setting',
-            permission: new Role('ADMIN')
+            permission: new ComplexPermission(['ADMIN'], ['x-pack'], 'AND')
           },
           component: () => import('@/views/theme/index.vue')
         },
@@ -86,7 +86,7 @@ const settingRouter = {
             activeMenu: '/setting',
             parentPath: '/setting',
             parentName: 'Setting',
-            permission: new Role('ADMIN')
+            permission: new ComplexPermission(['ADMIN'], ['x-pack'], 'AND')
           },
           component: () => import('@/views/authentication/index.vue')
         },

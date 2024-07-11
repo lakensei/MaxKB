@@ -1,4 +1,4 @@
-import Layout from '@/layout/main-layout/index.vue'
+import Layout from '@/layout/layout-template/SystemLayout.vue'
 
 const datasetRouter = {
   path: '/tool',
