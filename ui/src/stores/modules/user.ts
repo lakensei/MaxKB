@@ -63,23 +63,30 @@ const useUserStore = defineStore({
       this.userType = num
     },
 
-    async asyncGetVersion() {
-      return UserApi.getVersion().then((ok) => {
-        this.version = ok.data?.version || '-'
-        this.isXPack = ok.data?.IS_XPACK
-        this.XPACK_LICENSE_IS_VALID = ok.data?.XPACK_LICENSE_IS_VALID
+    async asyncGetProfile() {
+      return new Promise((resolve, reject) => {
+        UserApi.getProfile()
+          .then((ok) => {
+            this.version = ok.data?.version || '-'
+            this.isXPack = ok.data?.IS_XPACK
+            this.XPACK_LICENSE_IS_VALID = ok.data?.XPACK_LICENSE_IS_VALID
+            resolve(ok)
+          })
+          .catch((error) => {
+            reject(error)
+          })
       })
     },
 
     async profile() {
       return UserApi.profile().then((ok) => {
         this.userInfo = ok.data
-        this.asyncGetVersion()
+        this.asyncGetProfile()
       })
     },
 
-    async login(username: string, password: string) {
-      return UserApi.login({ username, password }).then((ok) => {
+    async login(auth_type: string, username: string, password: string) {
+      return UserApi.login(auth_type, { username, password }).then((ok) => {
         this.token = ok.data
         localStorage.setItem('token', ok.data)
         return this.profile()
@@ -90,6 +97,11 @@ const useUserStore = defineStore({
       return UserApi.logout().then(() => {
         localStorage.removeItem('token')
         return true
+      })
+    },
+    async getAuthType() {
+      return UserApi.getAuthType().then((ok) => {
+        return ok.data
       })
     }
   }
