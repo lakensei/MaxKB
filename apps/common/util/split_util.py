@@ -116,7 +116,7 @@ def text_to_chunk(text,
     return [{"content": content, "title": ""} for content in contents]
 
 
-class MllmModelMixin:
+class VLMModelMixin:
     def gen_picture_summary(self, base64_img):
         return '请将图片转换为文本内容，如果图片是表格转为markdown格式的表格，否则详细描述内容'
         # self.vlm_model: OpenAIChatModel
@@ -155,7 +155,7 @@ class MllmModelMixin:
             "temperature": 0.8,
             "top_p": 0.8,
         }
-        base_url = self.mllm_model.openai_api_base
+        base_url = self.vlm_model.openai_api_base
         response = requests.post(f"{base_url}/chat/completions", json=data, stream=use_stream)
         decoded_line = response.json()
         content = decoded_line.get("choices", [{}])[0].get("message", "").get("content", "")
@@ -182,16 +182,16 @@ class MllmModelMixin:
         return f'![](/api/image/{image_uuid})'
 
 
-class OcrLayoutContent(MllmModelMixin):
+class OcrLayoutContent(VLMModelMixin):
     """
     版面分析获取文本内容
     """
 
-    def __init__(self, pdf_document, file_name, layout_engine, mllm_model):
+    def __init__(self, pdf_document, file_name, layout_engine, vlm_model):
         self.pdf_document = pdf_document
         self.file_name = file_name.split('.')[0]  # + f'_{int(time.time() * 1000)}'
         self.layout_engine = layout_engine
-        self.mllm_model = mllm_model
+        self.vlm_model = vlm_model
         self.skip_pages = 0
         self.image_list = []
         self.limit_size = 750
@@ -369,11 +369,11 @@ class OcrLayoutContent(MllmModelMixin):
         return res
 
 
-class MllmContent(MllmModelMixin):
-    def __init__(self, pdf_document, file_name, mllm_model):
+class VLMContent(VLMModelMixin):
+    def __init__(self, pdf_document, file_name, vlm_model):
         self.pdf_document = pdf_document
         self.file_name = file_name.split('.')[0]  # + f'_{int(time.time() * 1000)}'
-        self.mllm_model = mllm_model
+        self.vlm_model = vlm_model
         self.skip_pages = 0
         self.image_list = []
 

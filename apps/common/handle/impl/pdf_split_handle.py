@@ -48,7 +48,7 @@ class PdfSplitHandle(BaseSplitHandle):
                 }
 
     def handle(self, file, pattern_list: List, with_filter: bool, limit: int, get_buffer, save_image,
-               mllm_model=None, rule_type="1"):
+               vlm_model=None, rule_type="1"):
         buffer = get_buffer(file)
         pdf_document = fitz.open(file.name, buffer)
         image_list = []
@@ -65,7 +65,7 @@ class PdfSplitHandle(BaseSplitHandle):
         elif rule_type == "3":
             from common.util.split_util import OcrLayoutContent
             from common.config.layout_config import LayoutModel
-            layout_obj = OcrLayoutContent(pdf_document, file.name, LayoutModel(), mllm_model)
+            layout_obj = OcrLayoutContent(pdf_document, file.name, LayoutModel(), vlm_model)
             split_content = layout_obj.get_section()
             image_list = layout_obj.image_list
             # if pattern_list is not None and len(pattern_list) > 0:
@@ -73,10 +73,10 @@ class PdfSplitHandle(BaseSplitHandle):
             # else:
             #     split_content = text_to_chunk(content, limit)
         elif rule_type == "4":
-            from common.util.split_util import MllmContent
-            mllm_obj = MllmContent(pdf_document, file.name, mllm_model)
-            split_content = mllm_obj.get_section()
-            image_list = mllm_obj.image_list
+            from common.util.split_util import VLMContent
+            vlm_obj = VLMContent(pdf_document, file.name, vlm_model)
+            split_content = vlm_obj.get_section()
+            image_list = vlm_obj.image_list
         else:
             return {'name': file.name,
                     'content': []}

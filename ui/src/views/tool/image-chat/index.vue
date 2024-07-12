@@ -98,7 +98,7 @@ const imageChatForm = ref<ImageChatFormType>({
 })
 
 const initVlmModelList = () => {
-  ModelApi.getModel({model_type: 'MLLM'}, vlmModelLoading).then((ok) => {
+  ModelApi.getModel({model_type: 'VLM'}, vlmModelLoading).then((ok) => {
     vlmModelList.value = ok.data.map(item => ({
       key: item.name,
       value: item.id

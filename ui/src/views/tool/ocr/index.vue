@@ -56,7 +56,8 @@
           </el-form>
         </el-col>
         <el-col :span="14" class="p-24 border-l">
-          <p>耗时： <span>123</span>ms</p>
+          <el-alert title="该功能正在开发中" type="warning" :closable="false" />
+          <p>耗时： <span></span>ms</p>
           <div id="layout-box"></div>
         </el-col>
       </el-row>
