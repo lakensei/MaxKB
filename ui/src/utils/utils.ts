@@ -89,11 +89,18 @@ export function getSum(array: Array<any>) {
 }
 
 // 图片转base64
-export function blobToBase64(blob) {
-  return new Promise((resolve, reject) => {
+export function blobToBase64(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(blob);
-    reader.onload = (e) => resolve(e.target.result);
-    reader.onerror = reject;
+    reader.onload = (e) => {
+        // 确保e.target存在且为FileReader实例
+        if (e.target instanceof FileReader) {
+            resolve((e.target as FileReader).result as string);
+        } else {
+            reject(new Error('Target is not a FileReader instance'));
+        }
+    };
+    reader.onerror = () => reject(new Error('Failed to read the data url.'));
   });
 }

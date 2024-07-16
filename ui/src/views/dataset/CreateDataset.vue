@@ -133,7 +133,7 @@ function submit() {
       })
     }
     documents.push({
-      fileType: documentsType[index],
+      // fileType: documentsType[index],
       name: item.name,
       paragraphs: item.content
     })

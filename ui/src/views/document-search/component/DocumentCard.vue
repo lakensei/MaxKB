@@ -30,7 +30,10 @@ import { getImgUrl } from '@/utils/utils'
 const slots = useSlots()
 defineOptions({ name: 'DocumentCard' })
 const props = defineProps({
-  title: String
+  title: {
+    type: String,
+    required: true
+  }
 })
 
 const show = ref(false)

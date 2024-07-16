@@ -66,7 +66,7 @@
 </template>
 <script setup lang="ts">
 import {reactive, ref} from 'vue'
-import {UploadProps} from "element-plus";
+import type {UploadProps} from "element-plus";
 import {blobToBase64} from "@/utils/utils";
 
 const form = reactive<{
@@ -77,80 +77,80 @@ const form = reactive<{
   ocr_type: '',
   image_src: '',
 })
-const imgFile = ref(null)
+const imgFile = ref<File | Blob>()
 
-function toOcr(type) {
+function toOcr(type: number) {
   console.log(type)
   layoutCanvas()
 }
 
 const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
-  imgFile.value = uploadFile.raw
-  blobToBase64(uploadFile.raw).then((res) => {
-    const base64String = res.split(',')[1];
+  const rawFile = uploadFile.raw;
+  if (!(rawFile! instanceof Blob)) {
+    return
+  }
+  imgFile.value = rawFile
+  blobToBase64(rawFile).then((res) =>{
+    const base64String = res.split(',')[1]
     form.image_src = "data:image/jpeg;base64," + base64String
   })
 }
 
 const layoutCanvas = () => {
   // 创建FileReader读取文件
-  const reader = new FileReader();
-  const file = imgFile.value;
+  const reader = new FileReader()
 
   // 当读取完成时执行的回调函数
   reader.onload = function (event) {
-    const img = new Image();
+    const img = new Image()
 
     // 图片加载完成后执行的回调函数
     img.onload = function () {
       // 创建canvas元素
-      const container = document.getElementById('layout-box');
-      console.log(container);
-      const canvas = document.createElement('canvas');
+      const container = document.getElementById('layout-box') as HTMLElement
+      const canvas = document.createElement('canvas')
 
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d') as CanvasRenderingContext2D
       // 设置canvas的尺寸为图片的尺寸
 
-      let scale = 1;
-      canvas.width = img.width;
-      canvas.height = img.height;
+      let scale = 1
+      canvas.width = img.width
+      canvas.height = img.height
       // canvas.height = canvas.height / scale;
       if (img.width > container.clientWidth) {
-        canvas.width = container.clientWidth;
-        const ratio = img.width / img.height;
-        canvas.height = canvas.width / ratio;
+        canvas.width = container.clientWidth
+        const ratio = img.width / img.height
+        canvas.height = canvas.width / ratio
         scale = container.clientWidth / img.width
       }
       // 清除之前的绘制
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
       // 绘制图片
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
 
       // 假设这是从后端得到的坐标
-      const originalBox = {x1: 261, y1: 66, x2: 978, y2: 125};
+      const originalBox = {x1: 261, y1: 66, x2: 978, y2: 125}
       const box = {
         x1: originalBox.x1 * scale,
         y1: originalBox.y1 * scale,
         x2: originalBox.x2 * scale,
         y2: originalBox.y2 * scale,
-      };
+      }
       // 设置画笔颜色和线宽
-      ctx.strokeStyle = 'red';
-      ctx.lineWidth = 2;
-
+      ctx.strokeStyle = 'red'
+      ctx.lineWidth = 2
       // 画框
-      ctx.strokeRect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1);
-      container.appendChild(canvas);
-    };
-
-    // 开始读取文件为DataURL
-    if (typeof event.target.result === "string") {
-      img.src = event.target.result;
+      ctx.strokeRect(box.x1, box.y1, box.x2 - box.x1, box.y2 - box.y1)
+      container.appendChild(canvas)
     }
-  };
-
+    // 开始读取文件为DataURL
+    const target = event.target as FileReader;
+    if (typeof target.result === "string") {
+      img.src = target.result
+    }
+  }
   // 读取文件
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(<Blob>imgFile.value)
 }
 
 </script>

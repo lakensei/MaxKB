@@ -1,5 +1,3 @@
-import { type Dict } from '@/api/type/common'
-import { type Ref } from 'vue'
 interface ImageChatFormType {
   model_id: string
   image_src: string

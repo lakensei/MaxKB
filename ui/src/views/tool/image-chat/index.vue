@@ -81,11 +81,11 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
-import {UploadProps} from "element-plus";
-import {KeyValue} from "@/api/type/common";
+import type {UploadProps} from "element-plus";
+import type {KeyValue} from "@/api/type/common";
 import {blobToBase64} from "@/utils/utils";
 import ModelApi from '@/api/model';
-import {ImageChatFormType} from "@/api/type/tool";
+import type {ImageChatFormType} from "@/api/type/tool";
 import AiImageChat from "./component/Chat.vue";
 const vlmModelList = ref<Array<KeyValue<string, string>>>([])
 const vlmModelLoading = ref<boolean>(false)
@@ -102,15 +102,19 @@ const initVlmModelList = () => {
     vlmModelList.value = ok.data.map(item => ({
       key: item.name,
       value: item.id
-    }));
+    }))
     if (vlmModelList.value.length > 0) {
       imageChatForm.value.model_id = vlmModelList.value[0].value // 默认选择第一个
     }
   })
 }
 const handleChange: UploadProps['onChange'] = (uploadFile, uploadFiles) => {
-  blobToBase64(uploadFile.raw).then((res) =>{
-    const base64String = res.split(',')[1];
+  const rawFile = uploadFile.raw
+  if (!(rawFile! instanceof Blob)) {
+    return
+  }
+  blobToBase64(rawFile).then((res) =>{
+    const base64String = res.split(',')[1]
     imageChatForm.value.image_src = "data:image/jpeg;base64," + base64String
   })
 }

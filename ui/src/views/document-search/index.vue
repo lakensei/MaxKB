@@ -121,10 +121,10 @@
         <el-scrollbar>
           <div class="document-search-height">
             <el-empty v-if="first" :image="emptyImg" description="文件列表" />
-            <el-empty v-else-if="documnetDetail.length == 0" description="未检索到文件" />
+            <el-empty v-else-if="documentDetail.length == 0" description="未检索到文件" />
             <el-row v-else>
               <el-col
-                v-for="(item, index) in documnetDetail"
+                v-for="(item, index) in documentDetail"
                 :key="index"
                 class="p-8"
               >
@@ -137,8 +137,8 @@
                     <a :href="item.document_meta?.source_url" :download="item.document_name">下载</a>
                   </div>
                   <template #body>
-                    <div v-for="(item, index) in item.paragraph_list" :key="index" class="paragraph-title break-all mt-12 primary">
-                      <p @click="editParagraph(item)" class="content">{{ item.title || item.content }}</p>
+                    <div v-for="(paragraph, i) in item.paragraph_list" :key="i" class="paragraph-title break-all mt-12 primary">
+                      <p @click="editParagraph(paragraph)" class="content">{{ paragraph.title || paragraph.content }}</p>
                     </div>
                   </template>
                 </DocumentCard>
@@ -163,6 +163,7 @@ import ParagraphDialog from '@/views/paragraph/component/ParagraphShowDialog.vue
 import DocumentCard from './component/DocumentCard.vue'
 import { arraySort } from '@/utils/utils'
 import emptyImg from '@/assets/document-search-empty.png'
+import type { DocumentSearchData } from '@/api/type/document'
 
 const route = useRoute()
 const {
@@ -172,7 +173,7 @@ const {
 
 const ParagraphDialogRef = ref()
 const loading = ref(false)
-const documnetDetail = ref<any[]>([])
+const documentDetail = ref<DocumentSearchData[]>([])
 const title = ref('')
 const inputValue = ref('')
 const formInline = ref({
@@ -232,7 +233,7 @@ function getDocumentList() {
     ...formInline.value
   }
   datasetApi.getDatasetDocumentSearch(id, obj, loading).then((res) => {
-    documnetDetail.value = res.data && arraySort(res.data, 'comprehensive_score', true)
+    documentDetail.value = res.data && arraySort(res.data, 'comprehensive_score', true)
     // questionTitle.value = inputValue.value
     // inputValue.value = ''
     first.value = false
@@ -240,15 +241,9 @@ function getDocumentList() {
 
 }
 
-function refresh(data: any) {
-  if (data) {
-    const obj = documnetDetail.value.filter((v) => v.id === data.id)[0]
-    obj.content = data.content
-    obj.title = data.title
-  } else {
-    documnetDetail.value = []
-    getDocumentList()
-  }
+function refresh() {
+  documentDetail.value = []
+  getDocumentList()
 }
 
 onMounted(() => {})

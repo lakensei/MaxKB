@@ -11,7 +11,7 @@
 
           <div class="content">
             <el-card shadow="always" class="dialog-card">
-              {{ data.prologue }}
+              {{ props.data.prologue }}
             </el-card>
           </div>
         </div>
@@ -121,16 +121,13 @@ import { randomId } from '@/utils/utils'
 import useStore from '@/stores'
 import MdRenderer from '@/components/markdown/MdRenderer.vue'
 import {MsgInfo} from "@/utils/message";
-import {ImageChatFormType} from "@/api/type/tool";
+import type {ImageChatFormType} from "@/api/type/tool";
 defineOptions({ name: 'AiImageChat' })
 const route = useRoute()
 const {
   query: { mode }
 } = route as any
-const props = defineProps({
-  data: Object as () => ImageChatFormType
-  // data: definePropType<ImageChatFormType>(Object)
-})
+const props = defineProps<{ data: ImageChatFormType }>();
 
 const emit = defineEmits(['refresh', 'scroll'])
 
